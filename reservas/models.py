@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.forms import ValidationError
 from django.utils import timezone 
 from django.db import models
 from usuarios.models import Usuarios
@@ -20,7 +21,7 @@ class Reserva(models.Model):
 
         # Verifica si la cancha está en mantenimiento
         if self.id_cancha.estado == 'Mantenimiento':
-            raise ValueError("La cancha está en mantenimiento y no se puede reservar.")
+            raise ValidationError("La cancha está en mantenimiento y no se puede reservar.")
 
         # Verifica disponibilidad de la cancha
         if Reserva.objects.filter(
@@ -28,7 +29,7 @@ class Reserva(models.Model):
             hora_inicio__lt=self.hora_fin,
             hora_fin__gt=self.hora_inicio
         ).exists():
-            raise ValueError("La cancha ya está reservada en ese horario.")
+            raise ValidationError("La cancha ya está reservada en ese horario.")
         
         # Si todo está bien, cambia el estado de la cancha a "Reservada"
         self.id_cancha.reservar()
