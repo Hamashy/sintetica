@@ -13,39 +13,39 @@ class Reserva(models.Model):
     hora_fin = models.TimeField(editable=False)
 
     def save(self, *args, **kwargs):
-        # Calcula la hora_fin automáticamente
+        if not self.id_cancha_id:
+            raise ValidationError("No se ha seleccionado una cancha para la reserva.")
+
+        # Asegúrate de obtener el objeto Cancha a través de self.id_cancha
+        cancha = self.id_cancha
+
+        # Resto de la lógica
         if self.hora_inicio:
             hora_inicio_dt = datetime.combine(datetime.today(), self.hora_inicio)
             hora_fin_dt = hora_inicio_dt + timedelta(hours=1)
             self.hora_fin = hora_fin_dt.time()
 
-        # Verifica si la cancha está en mantenimiento
-        if self.id_cancha.estado == 'Mantenimiento':
+        if cancha.estado == 'Mantenimiento':
             raise ValidationError("La cancha está en mantenimiento y no se puede reservar.")
 
-        # Verifica disponibilidad de la cancha
         if Reserva.objects.filter(
             id_cancha=self.id_cancha,
             hora_inicio__lt=self.hora_fin,
             hora_fin__gt=self.hora_inicio
         ).exists():
             raise ValidationError("La cancha ya está reservada en ese horario.")
-        
-        # Si todo está bien, cambia el estado de la cancha a "Reservada"
-        self.id_cancha.reservar()
-        super().save(*args, **kwargs)
 
-        #####
-        self.notificar_usuarios(f'Partido programado a las {self.hora_inicio}')######################
+        cancha.reservar()
+
         super().save(*args, **kwargs)
-        ####
+        self.notificar_usuarios(f'Partido programado a las {self.hora_inicio}')
 
     def delete(self, *args, **kwargs):
         # Cambia el estado de la cancha a "Disponible" cuando la reserva se elimina
         self.id_cancha.liberar()
         super().delete(*args, **kwargs)
 
-    def __str__(self):
+    def _str_(self):
         return f'Reserva {self.id_reserva} - Por {self.id_usuario} - {self.hora_inicio} - En {self.id_cancha}'
     
     #####
@@ -63,7 +63,7 @@ class ReservaConjunta(models.Model):
     nombre_grupo = models.CharField(max_length=100)
     numero_participantes = models.IntegerField()
     
-    def __str__(self):
+    def _str_(self):
         return self.nombre_grupo
     
 
@@ -78,7 +78,7 @@ class ColaSolo(models.Model):
     class Meta:
         ordering = ['unido_en']
 
-    def __str__(self):
+    def _str_(self):
         return f'Usuario {self.id_usuario} en cola para {self.id_cancha}'
 
     @classmethod
@@ -103,11 +103,5 @@ class Notificacion(models.Model):
     mensaje = models.TextField()
     enviado_en = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
+    def _str_(self):
         return f'Notificación para {self.id_usuario} en {self.enviado_en}'
-
-
-    
-
-    
-

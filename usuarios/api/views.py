@@ -4,9 +4,10 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from usuarios.models import Usuarios
-from usuarios.api.serializers import UserRegisterSerializer, UserSerializer
+from usuarios.api.serializers import UserRegisterSerializer, UserSerializer, CustomTokenObtainPairSerializer
 
 class UserApiViewSet(ModelViewSet):
     queryset = Usuarios.objects.all()
@@ -36,7 +37,7 @@ class UserView(APIView):
         return Response(serializer.data)
 
 class RegisterApiView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
 
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
@@ -47,3 +48,7 @@ class RegisterApiView(APIView):
             return Response(serializer.data)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

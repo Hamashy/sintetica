@@ -10,9 +10,9 @@ class Mantenimiento(models.Model):
     def save(self, *args, **kwargs):
         # Automatically set the cancha to 'Mantenimiento' status
         cancha = self.id_cancha
-        cancha.estado = 'Mantenimiento'
+        cancha.estado = 'MANTENIMIENTO'
         cancha.save()
         super(Mantenimiento, self).save(*args, **kwargs)
 
-    def __str__(self):
+    def _str_(self):
         return f'Mantenimiento {self.id_mantenimiento} - {self.fecha}'

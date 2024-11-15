@@ -4,12 +4,14 @@ from django.urls import path, include
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+#from reservas.api import views
 from usuarios.api.router import router_user
+
 
 from canchas.api.router import router_canchas
 from mantenimiento.api.router import router_mantenimiento
 from notificaciones.api.router import router_notificaciones
-from reservas.api.router import router_reservas, router_reservasconjuntas
+from reservas.api.router import router_reservas, router_reservasconjuntas, router_ReservaUser
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -34,7 +36,8 @@ urlpatterns = [
     path('api/', include(router_notificaciones.urls)),
     path('api/', include(router_reservas.urls)),
     path('api/', include(router_reservasconjuntas.urls)),
+    path('api/', include(router_ReservaUser.urls)),
+   #path('generar-pdf/', views.generar_pdf, name='generar_pdf'),
+
 
 ]
-
-

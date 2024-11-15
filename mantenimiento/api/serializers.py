@@ -9,3 +9,9 @@ class MantenimientoSerializer(ModelSerializer):
     class Meta:
         model = Mantenimiento
         fields = '__all__'
+        depth = 1
+
+class MantenimientoCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mantenimiento
+        fields = '__all__'  # O puedes listar los campos específicos que deseas permitir
